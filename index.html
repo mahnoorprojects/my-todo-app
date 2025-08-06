@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>To-Do List App with Light/Dark Mode</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Times New Roman', Times, 'Times New Roman', Times, serif;
+      background: #ffffff;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+      position: relative;
+      padding-top: 60px;
+    }
+
+    /* Night Mode */
+    body.night {
+      background: #000000;
+      color: #ddd;
+    }
+
+    .container {
+      background: #ececec;
+      margin-top: 20px;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.night .container {
+      background: #1e1e1e;
+      color: #ddd;
+      box-shadow: 0 8px 24px rgba(255, 255, 255, 0.05);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    input[type='text'] {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    body.night input[type='text'] {
+      background-color: #2a2a2a;
+      border-color: #555;
+      color: #eee;
+    }
+
+    button {
+      padding: 12px 16px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+
+    #addBtn {
+      background-color: #007bff;
+      color: white;
+    }
+
+    #addBtn:hover {
+      background-color: #0056b3;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 10px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      word-break: break-word;
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    }
+
+    body.night li {
+      background-color: #2a2a2a;
+      border-color: #555;
+      color: #ddd;
+    }
+
+    li span {
+      flex: 1;
+      cursor: default;
+    }
+
+    li button.remove-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 6px 12px;
+      font-size: 14px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      transition: background-color 0.2s ease;
+    }
+
+    li button.remove-btn:hover {
+      background-color: #b52a37;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      button,
+      input[type='text'] {
+        font-size: 14px;
+      }
+    }
+
+    /* === Light & Dark mode Toggle Btns === */
+    .mode-toggle {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      display: flex;
+      gap: 12px;
+      z-index: 1000;
+    }
+
+    .mode-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      transition: background-color 0.3s, color 0.3s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .mode-btn.sun {
+      background-color: #ffdd59;
+      color: #f39c12;
+    }
+
+    .mode-btn.moon {
+      background-color: #333;
+      color: #f1c40f;
+    }
+
+    .mode-btn.sun:hover {
+      background-color: #f7d64b;
+    }
+
+    .mode-btn.moon:hover {
+      background-color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="mode-toggle" aria-label="Toggle light or dark mode">
+    <button class="mode-btn sun" title="Light Mode" aria-pressed="true" aria-label="Switch to Light Mode">☀️</button>
+    <button class="mode-btn moon" title="Dark Mode" aria-pressed="false" aria-label="Switch to Dark Mode">🌙</button>
+  </div>
+
+  <div class="container">
+    <h1>My To-Do List</h1>
+    <div class="input-group">
+      <input
+        type="text"
+        id="taskInput"
+        placeholder="Add a new task..."
+        autocomplete="off"
+      />
+      <button id="addBtn" type="button">Add</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    // Grabbing elements
+    const addBtn = document.getElementById('addBtn');
+    const taskInput = document.getElementById('taskInput');
+    const taskList = document.getElementById('taskList');
+    const sunBtn = document.querySelector('.mode-btn.sun');
+    const moonBtn = document.querySelector('.mode-btn.moon');
+    const body = document.body;
+
+    // Saving tasks to localStorage
+    function saveTasks() {
+      const tasks = [];
+      taskList.querySelectorAll('li span').forEach((span) => {
+        tasks.push(span.textContent);
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    // Creating a task element w/ remove button
+    function createTaskElement(taskText) {
+      const li = document.createElement('li');
+
+      const span = document.createElement('span');
+      span.textContent = taskText;
+
+      const removeBtn = document.createElement('button');
+      removeBtn.textContent = 'Remove';
+      removeBtn.classList.add('remove-btn');
+
+      removeBtn.addEventListener('click', () => {
+        li.remove();
+        saveTasks();
+      });
+
+      li.appendChild(span);
+      li.appendChild(removeBtn);
+
+      return li;
+    }
+
+    // Loading tasks from localStorage
+    function loadTasks() {
+      const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+      tasks.forEach((task) => {
+        const li = createTaskElement(task);
+        taskList.appendChild(li);
+      });
+    }
+
+    // Adding task from input field
+    function addTask() {
+      const task = taskInput.value.trim();
+      if (!task) {
+        alert('Please enter a task!');
+        return;
+      }
+
+      const li = createTaskElement(task);
+      taskList.appendChild(li);
+
+      taskInput.value = '';
+      taskInput.focus();
+
+      saveTasks();
+    }
+
+    // Loading tasks on start
+    loadTasks();
+
+    // Adding task on button click or Enter key
+    addBtn.addEventListener('click', addTask);
+    taskInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        addTask();
+      }
+    });
+
+    // Light/Dark mode toggle functions
+    function setMode(mode) {
+      if (mode === 'dark') {
+        body.classList.add('night');
+        moonBtn.setAttribute('aria-pressed', 'true');
+        sunBtn.setAttribute('aria-pressed', 'false');
+      } else {
+        body.classList.remove('night');
+        sunBtn.setAttribute('aria-pressed', 'true');
+        moonBtn.setAttribute('aria-pressed', 'false');
+      }
+      localStorage.setItem('mode', mode);
+    }
+
+    // Loading mode from localStorage on startup
+    const savedMode = localStorage.getItem('mode') || 'light';
+    setMode(savedMode);
+
+    // Event listeners for the mode buttons
+    sunBtn.addEventListener('click', () => setMode('light'));
+    moonBtn.addEventListener('click', () => setMode('dark'));
+  </script>
+</body>
+</html>
+
